@@ -22,19 +22,11 @@ class BaseNotifiableObservable : NotifiableObservable {
 
     private val changeRegistryProperty = lazy { PropertyChangeRegistry() }
     private val changeRegistry: PropertyChangeRegistry by changeRegistryProperty
-    private var observable: Observable? = null
-
-    constructor() {
-        observable = this
-    }
-
-    constructor(observable: Observable) {
-        this.observable = observable
-    }
+    private lateinit var delegator: NitifiableObservable
 
     @Synchronized
-    override fun setDelegator(notifiableObservable: NotifiableObservable) {
-        observable = notifiableObservable
+    override fun setDelegator(delegator: NotifiableObservable) {
+        this.delegator = delegator
     }
 
     @Synchronized
@@ -50,14 +42,14 @@ class BaseNotifiableObservable : NotifiableObservable {
     @Synchronized
     override fun notifyChange() {
         if (changeRegistryProperty.isInitialized()) {
-            changeRegistry.notifyCallbacks(observable, ALL_PROPERTIES, null)
+            changeRegistry.notifyCallbacks(delegator, ALL_PROPERTIES, null)
         }
     }
 
     @Synchronized
     override fun notifyPropertyChanged(propertyId: Int) {
         if (changeRegistryProperty.isInitialized()) {
-            changeRegistry.notifyCallbacks(observable, propertyId, null)
+            changeRegistry.notifyCallbacks(delegator, propertyId, null)
         }
     }
 }
